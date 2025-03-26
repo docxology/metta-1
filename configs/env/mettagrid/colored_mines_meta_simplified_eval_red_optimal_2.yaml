@@ -13,13 +13,12 @@ game:
     rewards:
       # action_failure_penalty: 0.00001
       action_failure_penalty: 0
-      ore.red: 0.001
-      ore.blue: 0.001
-      ore.green: 0.001
+      ore.red: 0
+      ore.blue: 0
+      ore.green: 0
       battery: 0.1
       battery_max: 20
       heart: 1
-      heart_max: 1000
 
   map_builder:
     _target_: mettagrid.config.room.multi_room.RoomList
@@ -44,8 +43,8 @@ game:
           block: ${uniform:5,25,20}
 
       - _target_: mettagrid.config.room.random.Random
-        width: ${uniform:10,25,12}
-        height: ${uniform:10,25,12}
+        width: 14
+        height: 14
         border_width: 1
 
         agents: 1
@@ -76,18 +75,12 @@ game:
     generator.red:
       hp: 30
       cooldown: 1
-      output_battery: ${choose:0,0,6}
+      output_battery: 6
 
     generator.blue:
       hp: 30
       cooldown: 1
-      output_battery: ${choose:0,0,6}
-
-    generator.green:
-      hp: 30
-      cooldown: 1
-      output_battery: ${choose:0,0,6}
-
+      output_battery: 0
 
     altar:
       hp: 1000

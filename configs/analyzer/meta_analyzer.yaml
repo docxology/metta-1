@@ -7,10 +7,12 @@ analysis:
   metric_patterns: null
 
   metrics:
-    - metric: "*.get"
+    - metric: ore.blue.get
+    - metric: ore.red.get
+    - metric: ore.green.get
 
   queries: null
 
-  baseline_policies: null #if left null will average over policies in stats DB
+  baseline_policies: null
 
-  log_all: false
+  log_all: true
