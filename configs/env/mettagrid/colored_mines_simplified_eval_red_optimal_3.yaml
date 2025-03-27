@@ -80,12 +80,12 @@ game:
     generator.blue:
       hp: 30
       cooldown: 1
-      output_battery: 0
+      output_battery: 1
 
     generator.green:
       hp: 30
       cooldown: 1
-      output_battery: 0
+      output_battery: 1
 
     altar:
       hp: 1000

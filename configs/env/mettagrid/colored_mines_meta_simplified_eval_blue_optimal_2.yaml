@@ -75,7 +75,7 @@ game:
     generator.red:
       hp: 30
       cooldown: 1
-      output_battery: 0
+      output_battery: 1
 
     generator.blue:
       hp: 30

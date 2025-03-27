@@ -26,9 +26,6 @@ eval_db_uri: wandb://artifacts/georgemetalearning
 analyzer:
   eval_stats_uri: ${run_dir}/eval_stats
   policy_uri: ${..policy_uri}
-  analysis:
-    metrics:
-      - metric: episode_reward
 
 eval:
   num_envs: 10
