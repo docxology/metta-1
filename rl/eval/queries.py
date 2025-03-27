@@ -1,5 +1,8 @@
 from omegaconf import OmegaConf
 from typing import Dict, Any
+import logging
+
+logger = logging.getLogger(__name__)
 
 def all_fields():
     return "SELECT * FROM eval_data"
@@ -8,14 +11,14 @@ def total_metric(metric_field: str, filters: Dict[str, Any]):
     where_clause = build_where_clause(filters)
     query = f"""
         SELECT
-            episode_index,
             policy_name,
             eval_name,
-            SUM(CAST("{metric_field}" AS DOUBLE)) AS total_metric
+            AVG(CAST("{metric_field}" AS DOUBLE)) AS mean_{metric_field.replace('.', '_')},
+            STDDEV(CAST("{metric_field}" AS DOUBLE)) AS std_{metric_field.replace('.', '_')}
         FROM eval_data
         {where_clause}
-        GROUP BY episode_index, policy_name, eval_name
-        ORDER BY episode_index, policy_name, eval_name;"""
+        GROUP BY policy_name, eval_name
+        ORDER BY policy_name, eval_name;"""
 
     return query
 
@@ -35,8 +38,12 @@ def build_where_clause(filters: Dict[str, Any]) -> str:
             value = OmegaConf.to_container(value, resolve=True)
         if '.' in field and not field.startswith('"'):
             field = f'"{field}"'
-        if isinstance(value, (list, tuple)):
-            formatted_values = [f"'{v}'" if isinstance(v, str) else str(v) for v in value]
+        if field == "policy_name" and len(value) == 1:
+            p = value[0].replace("wandb://run/", "")
+            conditions.append(f"{field} LIKE '%{str(p)}%'")
+        elif isinstance(value, (list, tuple)):
+            logger.warning("If filtering by policy name with multiple policies, please include policy version.")
+            formatted_values = [f"'{str(v.replace('wandb://run/', ''))}'" for v in value]
             conditions.append(f"{field} IN ({', '.join(formatted_values)})")
         elif isinstance(value, str):
             value = value.strip()

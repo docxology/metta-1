@@ -1,13 +1,11 @@
 import logging
 from omegaconf import DictConfig
-from typing import Dict, Any, List, Optional
 from rl.eval.eval_stats_db import EvalStatsDB
 from tabulate import tabulate
 import fnmatch
 import numpy as np
+from rl.eval.queries import total_metric
 import pandas as pd
-import os
-import wandb
 logger = logging.getLogger("eval_stats_analyzer")
 
 class EvalStatsAnalyzer:
@@ -57,22 +55,20 @@ class EvalStatsAnalyzer:
         result_table = tabulate(result, headers=list(result.keys()), tablefmt="grid", maxcolwidths=25)
         logger.info(f"Results for {metric} with filters {filters}:\n{result_table}")
 
-
     def _analyze_metrics(self, metric_configs):
         result_dfs = []
         policy_fitness_records = []
         for cfg, metrics in metric_configs.items():
             filters = self._filters(cfg)
-            group_by_episode = cfg.get('group_by_episode', False)
             for metric in metrics:
-                metric_result = self.stats_db._metric(metric, filters, group_by_episode)
+                metric_result = self.stats_db._query(total_metric(metric, filters))
                 if len(metric_result) == 0:
                     logger.info(f"No data found for {metric} with filters {filters}" + "\n")
                     continue
                 policy_fitness = self.policy_fitness(metric_result, metric)
                 policy_fitness_records.extend(policy_fitness)
                 result_dfs.append(metric_result)
-                # self.log_result(metric_result, metric, filters)
+                self.log_result(metric_result, metric, filters)
 
         return result_dfs, policy_fitness_records
 
@@ -82,11 +78,6 @@ class EvalStatsAnalyzer:
             return [], []
 
         result_dfs, policy_fitness_records = self._analyze_metrics(self.metric_configs)
-
-        # Create table with eval_name and mean for each policy
-        if len(result_dfs) > 0 and self.analysis.log_all:
-            df = tabulate(result_dfs[0], headers=list(result_dfs[0].keys()), tablefmt="grid", maxcolwidths=25)
-            logger.info(f"Mean metrics by eval:\n{df}")
 
         policy_fitness_df = pd.DataFrame(policy_fitness_records)
         if len(policy_fitness_df) > 0:
@@ -105,8 +96,11 @@ class EvalStatsAnalyzer:
         policy_versions = [i for i in all_policies if uri in i]
         if len(policy_versions) == 0:
             raise ValueError(f"No policy found in DB for candidate policy: {uri}, options are {all_policies}")
-        if len(policy_versions) > 1 and 'wandb' in uri:
-            policy_versions.sort(key=lambda x: int(x.split(':v')[-1]))
+        if len(policy_versions) > 1:
+            try:
+                policy_versions.sort(key=lambda x: int(x.split(':v')[-1]))
+            except:
+                logger.warning(f"Failed to sort policy versions: {policy_versions}")
         candidate_uri = policy_versions[-1]
 
         return candidate_uri
@@ -136,7 +130,7 @@ class EvalStatsAnalyzer:
             candidate_mean = metric_data.loc[candidate_uri][metric_mean]
             baseline_mean = metric_data.loc[baseline_policies][metric_mean].mean()
             fitness = candidate_mean - baseline_mean # / np.std(baseline_data.loc[eval][metric_std])
-            policy_fitness.append({"eval": eval, "metric": metric_name, "candidate_mean": candidate_mean, "baseline_mean": baseline_mean, "fitness": fitness})
+            policy_fitness.append({"eval": evals[0], "metric": metric_name, "candidate_mean": candidate_mean, "baseline_mean": baseline_mean, "fitness": fitness})
             return policy_fitness
 
 

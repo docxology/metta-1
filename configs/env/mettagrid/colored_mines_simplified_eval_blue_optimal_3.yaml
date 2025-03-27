@@ -18,8 +18,7 @@ game:
       ore.green: 0
       battery: 0.1
       battery_max: 20
-      heart: 3
-      heart_max: 1000
+      heart: 1
 
   map_builder:
     _target_: mettagrid.config.room.multi_room.RoomList
@@ -27,8 +26,8 @@ game:
 
     rooms:
       - _target_: mettagrid.config.room.random.Random
-        width: 14
-        height: 14
+        width: 23
+        height: 23
         border_width: 1
 
         agents: 1
@@ -36,16 +35,16 @@ game:
         objects:
           mine.red: 1
           mine.blue: 1
-          mine.green: 1
+          mine.green: 0
           generator.red: 1
           generator.blue: 1
-          generator.green: 1
+          generator.green: 0
           altar: 2
           block: ${uniform:5,25,20}
 
       - _target_: mettagrid.config.room.random.Random
         width: 14
-        height: 14
+        height: 15
         border_width: 1
 
         agents: 1
@@ -53,13 +52,13 @@ game:
         objects:
           mine.red: 1
           mine.blue: 1
-          mine.green: 1
+          mine.green: 0
           generator.red: 1
           generator.blue: 1
-          generator.green: 1
+          generator.green: 0
           altar: 2
           block: ${uniform:5,15,12}
-  
+
   objects:
     mine.red:
       hp: 30
@@ -76,18 +75,17 @@ game:
     generator.red:
       hp: 30
       cooldown: 1
-      output_battery: 6
+      output_battery: 1
 
     generator.blue:
       hp: 30
       cooldown: 1
-      output_battery: 0
+      output_battery: 6
 
     generator.green:
       hp: 30
       cooldown: 1
       output_battery: 0
-
 
     altar:
       hp: 1000
