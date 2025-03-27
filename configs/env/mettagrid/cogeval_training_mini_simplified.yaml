@@ -119,15 +119,9 @@ game:
       hp: ${uniform:1, 20, 10}
 
   actions:
-    noop:
-      enabled: true
-    move:
-      enabled: true
-    rotate:
-      enabled: true
     attack:
       enabled: false
-    swap:
-      enabled: false
     change_color:
+      enabled: false
+    swap:
       enabled: false
