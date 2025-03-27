@@ -13,7 +13,7 @@ trainer:
     game:
       max_steps: 1000
 
-policy_uri: wandb://run/b.daphne.aws_sweep_colored_ore.r.2
+policy_uri: wandb://run/george_mtg_breakout_2.r.0
 
 
 analyzer:

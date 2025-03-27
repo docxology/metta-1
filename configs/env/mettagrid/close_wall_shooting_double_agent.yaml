@@ -1,0 +1,43 @@
+defaults:
+  - mettagrid
+
+game:
+  num_agents: 20  #how many agents are in the map x2
+  
+  actions: #which actions should be disabled in this map? 
+    attack:
+      enabled: true
+    change_color:
+      enabled: false
+    swap:
+      enabled: false
+
+  objects: #i think we should not have hearts initially in the altar but we can play with this
+    altar:
+      initial_items: 0
+    wall: 
+      hp: 1
+
+    lasery:
+      output_laser: 5000
+      max_output: 5000
+      cooldown: 0
+      initial_items: 15000
+
+  agent:
+    rewards:
+      ore: 1
+      generator: 1.5
+      heart: 4
+      ore.max: 1000
+      generator.max: 1000
+      heart.max: 1000
+
+  map_builder:
+
+    _target_: mettagrid.config.room.multi_room.MultiRoom
+    num_rooms: 2
+    room:
+      _target_: mettagrid.config.room.ascii.Ascii
+      border_width: 1
+      uri: "configs/env/mettagrid/maps/close_wall_shooting_double_agent.map"

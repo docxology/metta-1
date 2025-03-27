@@ -2,16 +2,8 @@ defaults:
   - mettagrid
 
 game:
-  num_agents: 2  #how many agents are in the map x2
+  num_agents: 6  #how many agents are in the map x2
   
-  actions: #which actions should be disabled in this map? 
-    attack:
-      enabled: false
-    change_color:
-      enabled: false
-    swap:
-      enabled: true
-
 
   objects:
     altar:
@@ -43,7 +35,6 @@ game:
       initial_items: 1
 
 
-
   map_builder:
 
     _target_: mettagrid.config.room.multi_room.MultiRoom
@@ -51,4 +42,4 @@ game:
     room:
       _target_: mettagrid.config.room.ascii.Ascii
       border_width: 1
-      uri: "configs/env/mettagrid/maps/spine_maze_extended_easy.map"
+      uri: "configs/env/mettagrid/maps/memory_loopy.map"

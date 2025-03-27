@@ -27,8 +27,8 @@ game:
 
     rooms:
       - _target_: mettagrid.config.room.random.Random
-        width: 14
-        height: 14
+        width: 23
+        height: 23
         border_width: 1
 
         agents: 1
@@ -77,11 +77,6 @@ game:
       hp: 30
       cooldown: 1
       output_battery: 6
-
-    generator.blue:
-      hp: 30
-      cooldown: 1
-      output_battery: 0
 
     generator.blue:
       hp: 30

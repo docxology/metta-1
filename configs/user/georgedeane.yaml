@@ -8,13 +8,28 @@ trainer:
   env: /env/mettagrid/walkaround
   evaluate_interval: 2
 
-# policy: wandb://run/b.daveey.train.maze.sm.dr.warm.0
+
+policy_uri: wandb://run/b.daveey.t.4.dr0.scf.ks
+
+#metalearning_finetuning_train2:v10
+#b.georgedeane.spine_maze
+
+#policy_uri: wandb://run/b.daphne.georgewalkaroundsweep.r.2
+
+# policy_uri: wandb://run/george_mtg_breakout_e3b.r.2
+
+
+
+# SWITCH TO THIS IF ACTION SPACE BUG
+# policy_uri: ${trained_policy_uri}
+
+
 # baselines: wandb://run/b.daveey.train.maze.sm.11x11.0
 
 # policy_uri: wandb://run/b.daveey.sm.train.er.new.0
 # policy_uri: wandb://run/daveey.ar.cards.1
 # policy_uri: wandb://run/b.daveey.t.32.instant
-policy_uri: ${trained_policy_uri}
+# policy_uri: ${trained_policy_uri}
 # npc_policy_uri: ${trained_policy_uri}
 # eval_db_uri: wandb://artifacts/daveey_eval_testing
 
@@ -28,21 +43,17 @@ analyzer:
 eval:
   num_envs: 2
   num_episodes: 2
-  max_time_s: 600
+  max_time_s: 5000
 
-  policy_uri: ${..policy_uri}
+   #policy_uri: ${..policy_uri}
   # npc_policy_uri: ${..npc_policy_uri}
   # eval_db_uri: ${..eval_db_uri} #file://daphne/sweep_stats
-  env: /env/mettagrid/walkaround
-
-
-
-
+  env: /env/mettagrid/cogeval_mini_simplified_test
 
 wandb:
   checkpoint_interval: 1
 
-run_id: 103
+run_id: 2
 run: ${oc.env:USER}.local.${run_id}
 trained_policy_uri: ${run_dir}/checkpoints
 

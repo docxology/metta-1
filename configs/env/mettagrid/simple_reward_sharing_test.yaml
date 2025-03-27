@@ -1,0 +1,27 @@
+defaults:
+  - mettagrid
+
+game:
+  num_agents: 4  #how many agents are in the map x2
+  
+  actions: #which actions should be disabled in this map? 
+    attack:
+      enabled: false
+    change_color:
+      enabled: false
+    swap:
+      enabled: true
+
+  reward_sharing:
+    groups:
+      team_1:
+        team_1: 0.5
+
+  map_builder:
+
+    _target_: mettagrid.config.room.multi_room.MultiRoom
+    num_rooms: 2
+    room:
+      _target_: mettagrid.config.room.ascii.Ascii
+      border_width: 1
+      uri: "configs/env/mettagrid/maps/simple_reward_sharing_test.map"

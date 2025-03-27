@@ -1,0 +1,58 @@
+defaults:
+  - mettagrid
+
+game:
+  num_agents: 12  # how many agents are in the map x2
+  
+  actions:  # which actions should be disabled in this map?
+    attack:
+      enabled: true
+    change_color:
+      enabled: false
+    swap:
+      enabled: false
+
+  objects:
+    altar:
+      initial_items: 0
+    wall: 
+      hp: 1
+    lasery:
+      output_laser: 5000
+      max_output: 5000
+      cooldown: 0
+      initial_items: 5000
+
+    # Active ore-producing mines
+    mine.red:
+      output_ore: 1
+      conversion_ticks: 1
+    mine.blue:
+      output_ore: 1
+      conversion_ticks: 1
+    mine.green:
+      output_ore: 1
+      conversion_ticks: 1
+
+    # Generators with different conversion times:
+    # Red and blue generators have high conversion times; green has a low one.
+    generator.red:
+      input_ore: red
+      output_battery: 1
+      conversion_ticks: 100
+    generator.blue:
+      input_ore: blue
+      output_battery: 1
+      conversion_ticks: 100
+    generator.green:
+      input_ore: green
+      output_battery: 1
+      conversion_ticks: 1
+
+  map_builder:
+    _target_: mettagrid.config.room.multi_room.MultiRoom
+    num_rooms: 2
+    room:
+      _target_: mettagrid.config.room.ascii.Ascii
+      border_width: 1
+      uri: "configs/env/mettagrid/maps/cooperation_free_comrade.map"
