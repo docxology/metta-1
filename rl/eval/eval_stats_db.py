@@ -77,7 +77,7 @@ class EvalStatsDbWandb(EvalStatsDB):
     """
     Database for loading eval stats from wandb.
     """
-    def __init__(self, artifact_name: str, wandb_run, from_cache: bool = False):
+    def __init__(self, artifact_name: str, wandb_run, from_cache: bool = True):
         self.api = wandb.Api()
         self.artifact_identifier = os.path.join(wandb_run.entity, wandb_run.project, artifact_name)
 

@@ -1,5 +1,8 @@
 from omegaconf import OmegaConf
 from typing import Dict, Any
+import logging
+
+logger = logging.getLogger(__name__)
 
 def all_fields():
     return "SELECT * FROM eval_data"
@@ -35,8 +38,12 @@ def build_where_clause(filters: Dict[str, Any]) -> str:
             value = OmegaConf.to_container(value, resolve=True)
         if '.' in field and not field.startswith('"'):
             field = f'"{field}"'
-        if isinstance(value, (list, tuple)):
-            formatted_values = [f"'{v}'" if isinstance(v, str) else str(v) for v in value]
+        if field == "policy_name" and len(value) == 1:
+            p = value[0].replace("wandb://run/", "")
+            conditions.append(f"{field} LIKE '%{str(p)}%'")
+        elif isinstance(value, (list, tuple)):
+            logger.warning("If filtering by policy name with multiple policies, please include policy version.")
+            formatted_values = [f"'{str(v.replace('wandb://run/', ''))}'" for v in value]
             conditions.append(f"{field} IN ({', '.join(formatted_values)})")
         elif isinstance(value, str):
             value = value.strip()

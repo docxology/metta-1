@@ -1,15 +1,29 @@
 _target_: rl.eval.eval_stats_analyzer.EvalStatsAnalyzer
 
-policy_uri: ???
+policy_uri: daphne_colored_meta_varied.r.6
 
 analysis:
 
   metric_patterns: null
 
   metrics:
+    - metric: heart.get
     - metric: ore.blue.get
     - metric: ore.red.get
     - metric: ore.green.get
+
+  filters:
+    policy_name:
+      - "daphne_colored_meta_varied.r.6:v6"
+      - "b.georgedeane.colored_mines_constrained:v13"
+      - "george_metavariedmettabox3.r.0:v8"
+      - "b.daphne.colored_mines_meta_varied:v6"
+      - "b.georgedeane.colored_mines_meta_varied:v18"
+
+  # metrics:
+  #   - metric: ore.blue.get
+  #   - metric: ore.red.get
+  #   - metric: ore.green.get
 
   queries: null
 
