@@ -65,7 +65,7 @@ class PolicyStore:
     def policies(self, policy: Union[str, OmegaConf], selector_type: str = "latest", n=1, metric="epoch") -> List[PolicyRecord]:
         return self._policy_records(policy, selector_type, n, metric) if isinstance(policy, str) else self.policies(policy.uri)
 
-    def _policy_records(self, uri, selector_type="top", n=1, metric="epoch"):
+    def _policy_records(self, uri, selector_type="latest", n=1, metric="epoch"):
         version = None
         if uri.startswith("wandb://"):
             wandb_uri = uri[len("wandb://"):]
