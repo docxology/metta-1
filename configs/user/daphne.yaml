@@ -3,16 +3,24 @@
 defaults:
   - override /agent: simple
   - override /eval: simple
+<<<<<<< HEAD
   - override /analyzer: meta_analyzer
+=======
+  - override /analyzer: eval_analyzer
+>>>>>>> 603cb02abb8a6a469038f034ea8a205014c379f2
 
 trainer:
   env: /env/mettagrid/bases
   evaluate_interval: 200
+<<<<<<< HEAD
+
+=======
   env_overrides:
     # sampling: 0.7
     game:
       num_agents: 36
       max_steps: 1000
+>>>>>>> 603cb02abb8a6a469038f034ea8a205014c379f2
 
 # policy: wandb://run/b.daveey.train.maze.sm.dr.warm.0
 # baselines: wandb://run/b.daveey.train.maze.sm.11x11.0
@@ -20,17 +28,38 @@ trainer:
 # policy_uri: wandb://run/b.daveey.sm.train.er.new.0
 # policy_uri: wandb://run/daveey.ar.cards.1
 # policy_uri: wandb://run/b.daveey.t.32.instant
-policy_uri:  wandb://run/b.georgedeane.colored_mines_meta_varied
-eval_db_uri: wandb://artifacts/georgemetalearning
+<<<<<<< HEAD
+policy_uri:  wandb://run/b.daphne.colored_mines_meta_varied:v6
+# eval_db_uri: wandb://artifacts/georgemetalearning
+=======
+policy_uri:  wandb://run/b.georgedeane.colored_mines_constrained
+# npc_policy_uri: ${trained_policy_uri}
+eval_db_uri: wandb://artifacts/testing
+>>>>>>> 603cb02abb8a6a469038f034ea8a205014c379f2
 
 analyzer:
   eval_stats_uri: ${run_dir}/eval_stats
   policy_uri: ${..policy_uri}
+<<<<<<< HEAD
+=======
+  analysis:
+    metrics:
+      - metric: episode_reward
+>>>>>>> 603cb02abb8a6a469038f034ea8a205014c379f2
 
 eval:
   num_envs: 10
   num_episodes: 16
   max_time_s: 600
+<<<<<<< HEAD
+  env: /env/mettagrid/cogeval_training_mini_simplified
+
+
+  policy_uri: ${..policy_uri}
+  # npc_policy_uri: ${..npc_policy_uri}
+  eval_db_uri: ${..eval_db_uri} #file://daphne/sweep_stats
+
+=======
 
 
   policy_uri: ${..policy_uri}
@@ -42,6 +71,7 @@ eval:
       # num_agents: 360
       max_steps: 10
 
+>>>>>>> 603cb02abb8a6a469038f034ea8a205014c379f2
 wandb:
   checkpoint_interval: 1
 

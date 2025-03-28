@@ -1,7 +1,6 @@
 defaults:
   - mettagrid
 
-sampling: 1
 game:
   num_agents: 18    # Updated for 9 room types with 2 rooms each
 
@@ -116,5 +115,5 @@ game:
       hp: 30
       cooldown: 1
 
-    wall:
+    block:
       hp: ${uniform:1, 20, 10}

@@ -93,15 +93,12 @@ class EvalStatsAnalyzer:
         if "wandb" in uri:
             uri = uri.replace("wandb://metta-research/metta/", "")
             uri = uri.replace("wandb://run/", "")
-        policy_versions = [i for i in all_policies if uri in i]
-        if len(policy_versions) == 0:
+        matching_policies = [i for i in all_policies if uri in i]
+        if len(matching_policies) == 0:
             raise ValueError(f"No policy found in DB for candidate policy: {uri}, options are {all_policies}")
-        if len(policy_versions) > 1:
-            try:
-                policy_versions.sort(key=lambda x: int(x.split(':v')[-1]))
-            except:
-                logger.warning(f"Failed to sort policy versions: {policy_versions}")
-        candidate_uri = policy_versions[-1]
+        if all([':v' in i for i in matching_policies]):
+            matching_policies.sort(key=lambda x: int(x.split(':v')[-1]))
+        candidate_uri = matching_policies[-1]
 
         return candidate_uri
 
@@ -126,25 +123,17 @@ class EvalStatsAnalyzer:
 
         evals = metric_data[eval].unique()
 
-        if len(evals) == 1:
-            candidate_mean = metric_data.loc[candidate_uri][metric_mean]
-            baseline_mean = metric_data.loc[baseline_policies][metric_mean].mean()
-            fitness = candidate_mean - baseline_mean # / np.std(baseline_data.loc[eval][metric_std])
-            policy_fitness.append({"eval": evals[0], "metric": metric_name, "candidate_mean": candidate_mean, "baseline_mean": baseline_mean, "fitness": fitness})
-            return policy_fitness
-
-
-        candidate_data = pd.DataFrame(metric_data.loc[candidate_uri]).set_index(eval)
-        baseline_data = metric_data.loc[baseline_policies].set_index(eval)
-
-        evals = metric_data[eval].unique()
+        if len(evals) > 1:
+            candidate_data = pd.DataFrame(metric_data.loc[candidate_uri]).set_index(eval)
+            baseline_data = metric_data.loc[baseline_policies].set_index(eval)
 
         for eval in evals:
-            # Is the difference the correct way to do this?
-            if eval not in candidate_data.index:
-                continue
-            candidate_mean = candidate_data.loc[eval][metric_mean]
-            baseline_mean = np.mean(baseline_data.loc[eval][metric_mean])
-            fitness = candidate_mean - baseline_mean # / np.std(baseline_data.loc[eval][metric_std])
+            if len(evals) == 1:
+                candidate_mean = metric_data.loc[candidate_uri][metric_mean]
+                baseline_mean = np.mean(metric_data.loc[baseline_policies][metric_mean])
+            else:
+                candidate_mean = candidate_data.loc[eval][metric_mean]
+                baseline_mean = np.mean(baseline_data.loc[eval][metric_mean])
+            fitness = candidate_mean - baseline_mean
             policy_fitness.append({"eval": eval, "metric": metric_name, "candidate_mean": candidate_mean, "baseline_mean": baseline_mean, "fitness": fitness})
         return policy_fitness
