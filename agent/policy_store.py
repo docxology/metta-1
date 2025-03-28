@@ -57,15 +57,14 @@ class PolicyStore:
         self._cached_prs = {}
 
     def policy(self, policy: Union[str, OmegaConf], selector_type: str = "latest", n=1, metric="epoch") -> PolicyRecord:
-        if isinstance(policy, OmegaConf):
+        if not isinstance(policy, str):
             policy = policy.uri
-        print(f"Policy: {policy}")
         prs = self._policy_records(str(policy), selector_type, n, metric)
         assert  len(prs) == 1, f"Expected 1 policy, got {len(prs)}"
         return prs[0]
 
     def policies(self, policy: Union[str, OmegaConf], selector_type: str = "latest", n=1, metric="epoch") -> List[PolicyRecord]:
-        if isinstance(policy, OmegaConf):
+        if not isinstance(policy, str):
             policy = policy.uri
         return self._policy_records(str(policy), selector_type, n, metric)
 
