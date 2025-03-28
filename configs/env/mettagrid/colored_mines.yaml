@@ -365,8 +365,8 @@ game:
     block:
       hp: ${uniform:1,6,3}
 
-  actions:
-    attack:
-      enabled: false
-    change_color:
-      enabled: false
+  # actions:
+  #   attack:
+  #     enabled: false
+  #   change_color:
+  #     enabled: false

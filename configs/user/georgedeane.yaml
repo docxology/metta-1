@@ -9,7 +9,9 @@ trainer:
   evaluate_interval: 2
 
 
-policy_uri: wandb://run/b.daveey.t.4.dr0.scf.ks
+policy_uri: wandb://run/b.daveey.t.64.dr90.1
+# b.daveey.t.64.dr90.1
+# b.daphne.colored_mines_meta_varied:v6
 
 #metalearning_finetuning_train2:v10
 #b.georgedeane.spine_maze
@@ -43,12 +45,18 @@ analyzer:
 eval:
   num_envs: 2
   num_episodes: 2
-  max_time_s: 5000
+  max_time_s: 1000
 
    #policy_uri: ${..policy_uri}
   # npc_policy_uri: ${..npc_policy_uri}
   # eval_db_uri: ${..eval_db_uri} #file://daphne/sweep_stats
-  env: /env/mettagrid/cogeval_mini_simplified_test
+  env: /env/mettagrid/minimal_general
+
+
+# minimal_wall
+# minimal_open_super_simple
+# minimal_wall_walkaround
+# minimal
 
 wandb:
   checkpoint_interval: 1

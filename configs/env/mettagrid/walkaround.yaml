@@ -4,13 +4,13 @@ defaults:
 game:
   num_agents: 32
 
-  actions:
-    attack:
-      enabled: false
-    change_color:
-      enabled: false
-    swap:
-      enabled: false
+  # actions:
+  #   attack:
+  #     enabled: false
+  #   change_color:
+  #     enabled: false
+  #   swap:
+  #     enabled: false
 
   objects:
     altar:
