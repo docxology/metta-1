@@ -3,45 +3,25 @@ defaults:
 
 game:
   num_agents: 16  #how many agents are in the map x2
-  
-  # actions: #which actions should be disabled in this map? 
-  #   attack:
-  #     enabled: false
-  #   change_color:
-  #     enabled: false
-  #   swap:
-  #     enabled: true
 
 
-  # objects:
-  #   altar:
-  #     hp: 30
-  #     input_battery: 1
-  #     output_heart: 1
-  #     max_output: 30
-  #     conversion_ticks: 1
-  #     cooldown: 1000
-  #     initial_items: 1
+  objects:
+    altar:
+      cooldown: 1
 
-  #   mine.red:
-  #     hp: 30
-  #     output_ore.red: 1
-  #     color: 0
-  #     max_output: 30
-  #     conversion_ticks: 1
-  #     cooldown: 1000
-  #     initial_items: 1
+    mine.red:
+      cooldown: 1
 
-  #   generator.red:
-  #     hp: 30
-  #     input_ore.red: 1
-  #     output_battery: 1
-  #     color: 0
-  #     max_output: 30
-  #     conversion_ticks: 1
-  #     cooldown: 1000
-  #     initial_items: 1
+    generator.red:
+      cooldown: 1
 
+  actions:
+    attack:
+      enabled: false
+    change_color:
+      enabled: false
+    swap:
+      enabled: false
 
 
   map_builder:

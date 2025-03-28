@@ -26,8 +26,8 @@ game:
 
     rooms:
       - _target_: mettagrid.config.room.random.Random
-        width: 23
-        height: 23
+        width: 14
+        height: 14
         border_width: 1
 
         agents: 1
@@ -44,7 +44,7 @@ game:
 
       - _target_: mettagrid.config.room.random.Random
         width: 14
-        height: 15
+        height: 14
         border_width: 1
 
         agents: 1
@@ -82,11 +82,6 @@ game:
       cooldown: 1
       output_battery: 6
 
-    generator.green:
-      hp: 30
-      cooldown: 1
-      output_battery: 0
-
     altar:
       hp: 1000
       cooldown: 1
@@ -96,8 +91,8 @@ game:
     block:
         hp: ${uniform:1,8,3}
 
-actions:
-  attack:
-    enabled: false
-  change_color:
-    enabled: false
+  actions:
+    attack:
+      enabled: false
+    change_color:
+      enabled: false

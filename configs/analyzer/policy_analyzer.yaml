@@ -8,17 +8,14 @@ analysis:
 
   metrics:
     - metric: episode_reward
+    - metric: ore.blue.get
+    - metric: ore.red.get
+    - metric: ore.green.get
 
   filters:
     policy_name:
       - ${policy_uri}
 
-
-
-  # metrics:
-  #   - metric: ore.blue.get
-  #   - metric: ore.red.get
-  #   - metric: ore.green.get
 
   queries: null
 
