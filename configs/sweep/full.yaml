@@ -17,7 +17,10 @@ trainer:
   l2_reg_loss_coef: ${ss:logit, 0.05, 1.0, 0.1}
   l2_init_loss_coef: ${ss:logit, 0.05,1.0, 0.1}
   # compile: ${ss:int, 0, 1}
+<<<<<<< HEAD
 
   env_overrides:
     game:
       max_steps: ${ss:linear, 500, 2500, 1000}
+=======
+>>>>>>> 603cb02abb8a6a469038f034ea8a205014c379f2

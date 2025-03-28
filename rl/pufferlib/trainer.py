@@ -223,9 +223,8 @@ class PufferTrainer:
             lstm_h, lstm_c = experience.lstm_h, experience.lstm_c
             e3b_inv = experience.e3b_inv
 
-        start = time.time()
 
-        while not experience.full and time.time() - start < 100:
+        while not experience.full:
             with profile.env:
                 o, r, d, t, info, env_id, mask = self.vecenv.recv()
 
