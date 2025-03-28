@@ -59,14 +59,14 @@ class PolicyStore:
     def policy(self, policy: Union[str, OmegaConf], selector_type: str = "latest", n=1, metric="epoch") -> PolicyRecord:
         if isinstance(policy, OmegaConf):
             policy = policy.uri
-        prs = self._policy_records(policy, selector_type, n, metric)
+        prs = self._policy_records(str(policy), selector_type, n, metric)
         assert  len(prs) == 1, f"Expected 1 policy, got {len(prs)}"
         return prs[0]
 
     def policies(self, policy: Union[str, OmegaConf], selector_type: str = "latest", n=1, metric="epoch") -> List[PolicyRecord]:
         if isinstance(policy, OmegaConf):
             policy = policy.uri
-        return self._policy_records(policy, selector_type, n, metric)
+        return self._policy_records(str(policy), selector_type, n, metric)
 
     def _policy_records(self, uri, selector_type="latest", n=1, metric="epoch"):
         version = None
