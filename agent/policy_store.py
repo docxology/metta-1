@@ -58,13 +58,12 @@ class PolicyStore:
 
     def policy(self, policy: Union[str, OmegaConf], selector_type: str = "top", n=1, metric="epoch") -> PolicyRecord:
         print(f"Policy : {policy}")
-        raise
-        prs = self._policy_records(policy, selector_type, n, metric) if isinstance(policy, str) else self.policy(policy)
+        prs = self._policy_records(policy, selector_type, n, metric) if isinstance(policy, str) else self.policy(policy.uri)
         assert  len(prs) == 1, f"Expected 1 policy, got {len(prs)}"
         return prs[0]
 
     def policies(self, policy: Union[str, OmegaConf], selector_type: str = "top", n=1, metric="epoch") -> List[PolicyRecord]:
-        return self._policy_records(policy, selector_type, n, metric) if isinstance(policy, str) else self.policies(policy)
+        return self._policy_records(policy, selector_type, n, metric) if isinstance(policy, str) else self.policies(policy.uri)
 
     def _policy_records(self, uri, selector_type="top", n=1, metric="epoch"):
         version = None
