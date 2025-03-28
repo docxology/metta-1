@@ -59,6 +59,7 @@ class PolicyStore:
     def policy(self, policy: Union[str, OmegaConf], selector_type: str = "latest", n=1, metric="epoch") -> PolicyRecord:
         if isinstance(policy, OmegaConf):
             policy = policy.uri
+        print(f"Policy: {policy}")
         prs = self._policy_records(str(policy), selector_type, n, metric)
         assert  len(prs) == 1, f"Expected 1 policy, got {len(prs)}"
         return prs[0]
