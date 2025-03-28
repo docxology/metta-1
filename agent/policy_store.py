@@ -59,6 +59,7 @@ class PolicyStore:
     def policy(self, policy: Union[str, OmegaConf], selector_type: str = "latest", n=1, metric="epoch") -> PolicyRecord:
         print(f"Policy : {policy}")
         prs = self._policy_records(policy, selector_type, n, metric) if isinstance(policy, str) else self.policy(policy.uri)
+        print(f"PRS: {prs}")
         assert  len(prs) == 1, f"Expected 1 policy, got {len(prs)}"
         return prs[0]
 
@@ -79,7 +80,7 @@ class PolicyStore:
                 prs = self._prs_from_wandb_sweep(sweep_name, version)
             else:
                 prs = self._prs_from_wandb_artifact(wandb_uri, version)
-
+            print(f"Prs: {prs}")
         elif uri.startswith("file://"):
             prs = self._prs_from_path(uri[len("file://"):])
         else:
