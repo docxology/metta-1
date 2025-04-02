@@ -67,113 +67,95 @@ class GridWorld:
     the maximum reward using two methods:
     1. Single agent reward multiplied by number of agents
     2. Maximum resource flow rate calculation
-    
-    Attributes:
-        inventory_limit (int): Maximum inventory size for agents
-        max_timesteps (int): Maximum number of steps in the simulation
-        mine_config (ResourceConfig): Configuration for mines
-        generator_config (ResourceConfig): Configuration for generators
-        altar_config (ResourceConfig): Configuration for altars
-        enclosed_spaces (List[EnclosedSpace]): List of enclosed spaces in the map
-        rewards (Dict[str, float]): Reward values for each resource type
     """
 
     def __init__(self, mettagrid_yaml_path: str, map_array: np.ndarray):
-        
-        def parse_yaml(param: Union[str, int]) -> int:
-            """Parse YAML parameter, handling uniform distribution syntax."""
-            if isinstance(param, str):
-                match = re.match(r'\$\{uniform:[^,]+,[^,]+,([^\}]+)\}', param)
-                return int(match.group(1)) if match else int(param)
-            return param
+        self.map_array = map_array
+        self._load_config(mettagrid_yaml_path)
+        self._setup_resource_configs()
+        self._setup_rewards()
+        self.enclosed_spaces = self.find_enclosed_spaces(map_array)
 
-        # Load mettagrid configuration
+    def _load_config(self, mettagrid_yaml_path: str) -> None:
+        """Load and parse the mettagrid configuration file."""
         with open(mettagrid_yaml_path, 'r') as file:
             env_config = yaml.safe_load(file)
 
-        # Extract configurations
-        game_env = env_config['game']
-        agent = game_env['agent']
-        objects = game_env['objects']
+        self.game_env = env_config['game']
+        self.agent_config = self.game_env['agent']
+        self.objects_config = self.game_env['objects']
 
-        # Check if using colored or uncolored resources
-        self.using_colors = 'mine.red' in objects
-        
-        if self.using_colors:
-            # Initialize colored resource configurations
-            self.mine_config = ColoredResourceConfig(
-                red=ResourceConfig(
-                    cooldown=parse_yaml(objects['mine.red']['cooldown']),
-                    max_output=parse_yaml(objects['mine.red']['max_output'])
-                ),
-                blue=ResourceConfig(
-                    cooldown=parse_yaml(objects['mine.blue']['cooldown']),
-                    max_output=parse_yaml(objects['mine.blue']['max_output'])
-                ),
-                green=ResourceConfig(
-                    cooldown=parse_yaml(objects['mine.green']['cooldown']),
-                    max_output=parse_yaml(objects['mine.green']['max_output'])
-                )
-            )
-
-            self.generator_config = ColoredResourceConfig(
-                red=ResourceConfig(
-                    cooldown=parse_yaml(objects['generator.red']['cooldown']),
-                    max_output=parse_yaml(objects['generator.red']['max_output']),
-                    input_ore=parse_yaml(objects['generator.red']['input_ore.red'])
-                ),
-                blue=ResourceConfig(
-                    cooldown=parse_yaml(objects['generator.blue']['cooldown']),
-                    max_output=parse_yaml(objects['generator.blue']['max_output']),
-                    input_ore=parse_yaml(objects['generator.blue']['input_ore.blue'])
-                ),
-                green=ResourceConfig(
-                    cooldown=parse_yaml(objects['generator.green']['cooldown']),
-                    max_output=parse_yaml(objects['generator.green']['max_output']),
-                    input_ore=parse_yaml(objects['generator.green']['input_ore.green'])
-                )
-            )
-        else:
-            # Initialize uncolored resource configurations
-            self.mine_config = ResourceConfig(
-                cooldown=parse_yaml(objects['mine']['cooldown']),
-                max_output=parse_yaml(objects['mine']['max_output'])
-            )
-            
-            self.generator_config = ResourceConfig(
-                cooldown=parse_yaml(objects['generator']['cooldown']),
-                max_output=parse_yaml(objects['generator']['max_output']),
-                input_ore=parse_yaml(objects['generator']['input_ore'])
-            )
-
-        self.altar_config = ResourceConfig(
-            cooldown=parse_yaml(objects['altar']['cooldown']),
-            max_output=parse_yaml(objects['altar']['max_output']),
-            input_battery=parse_yaml(objects['altar']['input_battery'])
+    def _parse_yaml(self, param: Union[str, int]) -> int:
+        """Parse YAML parameter, handling uniform distribution syntax."""
+        if isinstance(param, str):
+            match = re.match(r'\$\{uniform:[^,]+,[^,]+,([^\}]+)\}', param)
+            return int(match.group(1)) if match else int(param)
+        return param
+    
+    def _create_resource_config(self, resource_type: str) -> ResourceConfig:
+        """Create a ResourceConfig for a given resource type."""
+        config = self.objects_config[resource_type]
+        return ResourceConfig(
+            cooldown=self._parse_yaml(config['cooldown']),
+            max_output=self._parse_yaml(config['max_output']),
+            input_battery=self._parse_yaml(config.get('input_battery', 0)),
+            input_ore=self._parse_yaml(config.get('input_ore', 0))
         )
 
-        # Load environment parameters
-        self.inventory_limit = parse_yaml(agent['max_inventory'])
-        self.max_timesteps = parse_yaml(game_env['max_steps'])
+    def _create_colored_resource_config(self, resource_type: str) -> ColoredResourceConfig:
+        """Create a ColoredResourceConfig for a given resource type."""
+        return ColoredResourceConfig(
+            red=self._create_resource_config(f'{resource_type}.red'),
+            blue=self._create_resource_config(f'{resource_type}.blue'),
+            green=self._create_resource_config(f'{resource_type}.green')
+        )
+    
+    def _setup_resource_configs(self) -> None:
+        """Set up resource configurations based on map contents."""
+        # Check if using colored resources by looking at the map array
+        unique_elements = np.unique(self.map_array)
+        self.using_colors = any(f'mine.{color}' in unique_elements for color in ['red', 'blue', 'green'])
         
-        # Set up rewards based on whether using colors
+        # Set up mine and generator configs
+        if self.using_colors:
+            self.mine_config = self._create_colored_resource_config('mine')
+            self.generator_config = self._create_colored_resource_config('generator')
+        else:
+            self.using_red_as_default = 'mine' not in self.objects_config or 'generator' not in self.objects_config
+            if self.using_red_as_default:
+                self.mine_config = self._create_resource_config('mine.red')
+                self.generator_config = self._create_resource_config('generator.red')
+            else:
+                self.mine_config = self._create_resource_config('mine')
+                self.generator_config = self._create_resource_config('generator')
+
+        # Set up altar config (always uncolored)
+        self.altar_config = self._create_resource_config('altar')
+
+        # Load environment parameters
+        self.inventory_limit = self._parse_yaml(self.agent_config['max_inventory'])
+        self.max_timesteps = self._parse_yaml(self.game_env['max_steps'])
+
+    def _setup_rewards(self) -> None:
+        """Set up reward values based on yaml config."""
         if self.using_colors:
             self.rewards = {
-                ResourceType.ORE_RED: parse_yaml(agent['rewards']['ore.red']),
-                ResourceType.ORE_BLUE: parse_yaml(agent['rewards']['ore.blue']),
-                ResourceType.ORE_GREEN: parse_yaml(agent['rewards']['ore.green']),
-                ResourceType.BATTERY: parse_yaml(agent['rewards']['battery']),
-                ResourceType.HEART: parse_yaml(agent['rewards']['heart'])
+                ResourceType.ORE_RED: self._parse_yaml(self.agent_config['rewards']['ore.red']),
+                ResourceType.ORE_BLUE: self._parse_yaml(self.agent_config['rewards']['ore.blue']),
+                ResourceType.ORE_GREEN: self._parse_yaml(self.agent_config['rewards']['ore.green']),
+                ResourceType.BATTERY: self._parse_yaml(self.agent_config['rewards']['battery']),
+                ResourceType.HEART: self._parse_yaml(self.agent_config['rewards']['heart'])
             }
         else:
+            self.using_red_ore_reward = 'ore' not in self.agent_config['rewards']
+            ore_reward_key = 'ore.red' if self.using_red_ore_reward else 'ore'
             self.rewards = {
-                ResourceType.ORE: parse_yaml(agent['rewards']['ore']),  # Use single ore reward
-                ResourceType.BATTERY: parse_yaml(agent['rewards']['battery']),
-                ResourceType.HEART: parse_yaml(agent['rewards']['heart'])
+                ResourceType.ORE: self._parse_yaml(self.agent_config['rewards'][ore_reward_key]),
+                ResourceType.BATTERY: self._parse_yaml(self.agent_config['rewards']['battery']),
+                ResourceType.HEART: self._parse_yaml(self.agent_config['rewards']['heart'])
             }
 
-        # Find enclosed spaces in the map array
-        self.enclosed_spaces = self.find_enclosed_spaces(map_array)
+
 
     def find_enclosed_spaces(self, map_array: np.ndarray) -> List[EnclosedSpace]:
         """Find enclosed spaces in a numpy array map."""
@@ -211,28 +193,9 @@ class GridWorld:
                     space_width = max(x_coords) - min(x_coords) + 1
                     space_height = max(y_coords) - min(y_coords) + 1
                     
-                    # Get objects in space, handling both colored and uncolored cases
-                    if self.using_colors:
-                        mines = {
-                            'red': [(x, y) for x, y in space if map_array[y, x] == "mine.red"],
-                            'blue': [(x, y) for x, y in space if map_array[y, x] == "mine.blue"],
-                            'green': [(x, y) for x, y in space if map_array[y, x] == "mine.green"]
-                        }
-                        
-                        generators = {
-                            'red': [(x, y) for x, y in space if map_array[y, x] == "generator.red"],
-                            'blue': [(x, y) for x, y in space if map_array[y, x] == "generator.blue"],
-                            'green': [(x, y) for x, y in space if map_array[y, x] == "generator.green"]
-                        }
-                    else:
-                        mines = {
-                            'default': [(x, y) for x, y in space if map_array[y, x] == "mine"]
-                        }
-                        
-                        generators = {
-                            'default': [(x, y) for x, y in space if map_array[y, x] == "generator"]
-                        }
-                    
+                    # Get objects in space
+                    mines = self._get_resource_positions(space, "mine")
+                    generators = self._get_resource_positions(space, "generator")
                     altars = [(x, y) for x, y in space if map_array[y, x] == "altar"]
                     agents = [(x, y) for x, y in space if map_array[y, x] == "agent.agent"]
                     walls = [(x, y) for x, y in space if map_array[y, x] == "wall"]
@@ -248,12 +211,21 @@ class GridWorld:
                     ))
         
         return enclosed_spaces
+    
+    def _get_resource_positions(self, space: Set[Tuple[int, int]], resource_type: str) -> Dict[str, List[Tuple[int, int]]]:
+        """Get positions of resources in a space."""
+        if self.using_colors:
+            return {
+                color: [(x, y) for x, y in space if self.map_array[y, x] == f"{resource_type}.{color}"]
+                for color in ['red', 'blue', 'green']
+            }
+        return {'default': [(x, y) for x, y in space if self.map_array[y, x] == resource_type]}
 
-    def manhattan_distance(self, pos_a: Tuple[int, int], pos_b: Tuple[int, int]) -> int:
+    def _manhattan_distance(self, pos_a: Tuple[int, int], pos_b: Tuple[int, int]) -> int:
         """Calculate Manhattan distance between two positions."""
         return abs(pos_a[0] - pos_b[0]) + abs(pos_a[1] - pos_b[1])
 
-    def get_minimal_distances(self, space: EnclosedSpace) -> Dict[str, Tuple[int, int, int]]:
+    def _get_minimal_distances(self, space: EnclosedSpace) -> Dict[str, Tuple[int, int, int]]:
         """Calculate the minimal distances between objects in an enclosed space."""
         distances = {}
         colors = ['red', 'blue', 'green'] if self.using_colors else ['default']
@@ -263,28 +235,28 @@ class GridWorld:
             mine_to_generator = float('inf')
             for mine_pos in space.mines[color]:
                 for gen_pos in space.generators[color]:
-                    dist = self.manhattan_distance(mine_pos, gen_pos)
+                    dist = self._manhattan_distance(mine_pos, gen_pos)
                     mine_to_generator = min(mine_to_generator, dist)
             
             # Find closest generator to altar
             generator_to_altar = float('inf')
             for gen_pos in space.generators[color]:
                 for altar_pos in space.altars:
-                    dist = self.manhattan_distance(gen_pos, altar_pos)
+                    dist = self._manhattan_distance(gen_pos, altar_pos)
                     generator_to_altar = min(generator_to_altar, dist)
             
             # Find closest altar to mine
             altar_to_mine = float('inf')
             for altar_pos in space.altars:
                 for mine_pos in space.mines[color]:
-                    dist = self.manhattan_distance(altar_pos, mine_pos)
+                    dist = self._manhattan_distance(altar_pos, mine_pos)
                     altar_to_mine = min(altar_to_mine, dist)
             
             distances[color] = (mine_to_generator, generator_to_altar, altar_to_mine)
         
         return distances
 
-    def estimate_max_reward_simple(self, space: EnclosedSpace) -> float:
+    def _estimate_max_reward_simple(self, space: EnclosedSpace) -> float:
         """Calculate max reward for a single space by calculating the max reward for a single agent 
         and multiplying by number of agents. Returns the maximum reward given the best color strategy."""
         inventory_space = self.inventory_limit
@@ -306,7 +278,7 @@ class GridWorld:
                 generator_config = self.generator_config
             
             # Get distances for this color
-            mine_to_generator, generator_to_altar, altar_to_mine = self.get_minimal_distances(space)[color]
+            mine_to_generator, generator_to_altar, altar_to_mine = self._get_minimal_distances(space)[color]
             
             while time_left > 0 and inventory_space > 0:
                 # Travel to Mine
@@ -391,7 +363,7 @@ class GridWorld:
         
         return max_reward
     
-    def estimate_max_reward_max_flow(self, space: EnclosedSpace) -> float:
+    def _estimate_max_reward_max_flow(self, space: EnclosedSpace) -> float:
         """Calculate max reward for a single space assuming maximum resource flow rate."""
         total_reward = 0
         colors = ['red', 'blue', 'green'] if self.using_colors else ['default']
@@ -443,18 +415,18 @@ class GridWorld:
             total_reward += total_hearts * self.rewards[ResourceType.HEART]
         
         return total_reward
+    
+    def _calculate_space_reward(self, space: EnclosedSpace) -> float:
+        """Calculate the maximum reward for a single space."""
+        return min(
+            self._estimate_max_reward_simple(space),
+            self._estimate_max_reward_max_flow(space)
+        )
 
     def estimate_max_reward(self) -> float:
-        """Calculate the estimated maximum reward using both methods."""
-        total_reward = 0
-        for space in self.enclosed_spaces:
-            space_reward = min(
-                self.estimate_max_reward_simple(space),
-                self.estimate_max_reward_max_flow(space)
-            )
-            total_reward += space_reward
-        return total_reward
-    
+        """Calculate the estimated maximum reward across all spaces."""
+        return sum(self._calculate_space_reward(space) for space in self.enclosed_spaces)
+
     def simulation_summary(self) -> str:
         """Generate a summary of the simulation parameters and results."""
         estimated_reward = self.estimate_max_reward()
@@ -466,8 +438,15 @@ class GridWorld:
             f"Inventory Limit: {self.inventory_limit}\n"
             f"Max Timesteps: {self.max_timesteps}\n"
             f"Using Colored Resources: {self.using_colors}\n"
-            f"Rewards:\n"
         )
+
+        if not self.using_colors:
+            if self.using_red_as_default:
+                summary += "WARNING: Using red mine/generator parameters as defaults since uncolored parameters are not available in the yaml.\n"
+            if self.using_red_ore_reward:
+                summary += "WARNING: Using red ore reward as default since uncolored ore reward is not available in the yaml.\n"
+            
+        summary += f"Rewards:\n"
         
         if self.using_colors:
             summary += (
@@ -496,5 +475,13 @@ class GridWorld:
                 summary += f"Number of Generators: {len(space.generators['default'])}\n"
             summary += f"Number of Altars: {len(space.altars)}\n"
             summary += f"Number of Agents: {len(space.agents)}\n"
+            
+            # Calculate and show max reward per agent for this space
+            space_reward = self._calculate_space_reward(space)
+            if len(space.agents) > 0:
+                max_reward_per_agent = space_reward / len(space.agents)
+                summary += f"Maximum Reward per Agent: {max_reward_per_agent:.2f}\n"
+            else:
+                summary += "Maximum Reward per Agent: N/A (no agents in space)\n"
         
         return summary
