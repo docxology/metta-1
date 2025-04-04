@@ -23,6 +23,8 @@ from dataclasses import dataclass
 # - Only provides an estimate of the maximum reward - will need to refine to get the exact maximum reward if we want this in the future
 # - Assumes no conversion ticks.
 # - Assumes walls are indestructible.
+# - Assumes generators have no conversion rate.
+# - Assumes no agent-agent interactions.
 ###
 
 # Constants for resource types
@@ -74,7 +76,7 @@ class GridWorld:
         self._load_config(mettagrid_yaml_path)
         self._setup_resource_configs()
         self._setup_rewards()
-        self.enclosed_spaces = self.find_enclosed_spaces(map_array)
+        self.enclosed_spaces = self._find_enclosed_spaces(map_array)
 
     def _load_config(self, mettagrid_yaml_path: str) -> None:
         """Load and parse the mettagrid configuration file."""
@@ -155,15 +157,13 @@ class GridWorld:
                 ResourceType.HEART: self._parse_yaml(self.agent_config['rewards']['heart'])
             }
 
-
-
-    def find_enclosed_spaces(self, map_array: np.ndarray) -> List[EnclosedSpace]:
+    def _find_enclosed_spaces(self, map_array: np.ndarray) -> List[EnclosedSpace]:
         """Find enclosed spaces in a numpy array map."""
         height, width = map_array.shape
         visited = np.zeros((height, width), dtype=bool)
         enclosed_spaces = []
         
-        def flood_fill(x: int, y: int, space: Set[Tuple[int, int]]) -> None:
+        def _flood_fill(x: int, y: int, space: Set[Tuple[int, int]]) -> None:
             """Flood fill to identify connected empty spaces."""
             if x < 0 or x >= width or y < 0 or y >= height:
                 return
@@ -175,17 +175,17 @@ class GridWorld:
             visited[y, x] = True
             space.add((x, y))
             
-            flood_fill(x + 1, y, space)
-            flood_fill(x - 1, y, space)
-            flood_fill(x, y + 1, space)
-            flood_fill(x, y - 1, space)
+            _flood_fill(x + 1, y, space)
+            _flood_fill(x - 1, y, space)
+            _flood_fill(x, y + 1, space)
+            _flood_fill(x, y - 1, space)
         
         # Find all enclosed spaces
         for y in range(height):
             for x in range(width):
                 if not visited[y, x] and map_array[y, x] != "wall":
                     space = set()
-                    flood_fill(x, y, space)
+                    _flood_fill(x, y, space)
                     
                     # Get space boundaries
                     x_coords = [pos[0] for pos in space]
@@ -259,15 +259,15 @@ class GridWorld:
     def _estimate_max_reward_simple(self, space: EnclosedSpace) -> float:
         """Calculate max reward for a single space by calculating the max reward for a single agent 
         and multiplying by number of agents. Returns the maximum reward given the best color strategy."""
-        inventory_space = self.inventory_limit
-        time_remaining = self.max_timesteps
+        print(f"Estimating max reward for space {space.width}x{space.height}")
         max_reward = 0
 
         # Calculate rewards for each color strategy
         colors = ['red', 'blue', 'green'] if self.using_colors else ['default']
         for color in colors:
             ore, batteries, hearts = 0, 0, 0
-            time_left = time_remaining
+            time_left = self.max_timesteps
+            inventory_space = self.inventory_limit  # Track remaining inventory space
             
             # Get configurations for this color
             if self.using_colors:
@@ -277,89 +277,126 @@ class GridWorld:
                 mine_config = self.mine_config
                 generator_config = self.generator_config
             
+            # Print mine cooldown value
+            print(f"Mine cooldown for {color}: {mine_config.cooldown}")
+            
             # Get distances for this color
             mine_to_generator, generator_to_altar, altar_to_mine = self._get_minimal_distances(space)[color]
             
-            while time_left > 0 and inventory_space > 0:
+            while time_left > 0:
+                print(f"Time left: {time_left}")
                 # Travel to Mine
-                if time_left < altar_to_mine:
-                    break
                 time_left -= altar_to_mine
-
-                # Mining phase
-                mine_time = inventory_space * (mine_config.cooldown + 1)
-                if time_left < mine_time:
-                    ore += time_left // (mine_config.cooldown + 1)
+                mine_time = mine_config.cooldown + 1
+                while inventory_space > 0 and time_left > 0:
+                    time_left -= mine_time
+                    ore += 1
+                    print(f"Ore: {ore}")
+                    inventory_space -= 1
+                    print(f"Inventory space: {inventory_space}")
+                print(f"Time left after mining: {time_left}")
+                if time_left <= 0:
                     break
-                time_left -= mine_time
-                ore += inventory_space
 
                 # Travel to Generator
-                if time_left < mine_to_generator:
-                    break
                 time_left -= mine_to_generator
-
-                # Generator put phase
-                generator_put_time = ore
-                if time_left < generator_put_time:
-                    ore -= time_left
+                if time_left <= 0:
                     break
-                time_left -= generator_put_time
+                print(f"Time left after traveling to generator: {time_left}")
+                
+                generator_puts = 0
+                # Generator put phase
+                while ore > 0 and time_left > 0:
+                    generator_puts += 1
+                    ore -= 1
+                    time_left -= 1
+                    inventory_space += 1
+                    print(f"Ore: {ore}")
+                    print(f"Inventory space: {inventory_space}")    
+                if time_left <= 0:
+                    break
 
                 # Generator get phase
-                generator_get_actions = math.ceil(ore / generator_config.max_output)
-                generator_get_time = generator_get_actions + (generator_get_actions - 1) * generator_config.cooldown
-                if time_left < generator_get_time:
-                    completed_gets = (time_left + generator_config.cooldown) // (1 + generator_config.cooldown)
-                    batteries += min(ore, completed_gets * generator_config.max_output)
-                    ore -= batteries
-                    break
-                batteries += ore
-                ore = 0
-                time_left -= generator_get_time
+                generator_get_actions = math.ceil(generator_puts / generator_config.max_output)
+                generator_get_time = 1 + generator_config.cooldown
+                while time_left > 0 and generator_get_actions > 0:
+                    generator_get_actions -= 1
 
+                    if batteries + generator_config.max_output > generator_puts:
+                        batteries = generator_puts
+                        inventory_space = 0
+                    else:
+                        batteries += generator_config.max_output
+                        inventory_space -= generator_config.max_output
+                    
+                    time_left -= generator_get_time
+                    print(f"Batteries: {batteries}")
+                    print(f"Time left: {time_left}")
+                if time_left <= 0:
+                    break
+                
+                print(f"Time left after generator get: {time_left}")
+               
                 # Travel to Altar
-                if time_left < generator_to_altar:
-                    break
                 time_left -= generator_to_altar
-
+                print(f"Time left after traveling to altar: {time_left}")
+                if time_left <= 0:
+                    break
+                
+                print(f"Altar put phase")
                 # Altar put phase
-                altar_put_time = batteries
-                if time_left < altar_put_time:
-                    batteries -= time_left
+                altar_puts = 0
+                while batteries > 0 and time_left > 0:
+                    altar_puts += 1
+                    inventory_space += 1
+                    print(f"Inventory space: {inventory_space}")
+                    batteries -= 1
+                    print(f"Batteries: {batteries}")
+                    time_left -= 1
+                    print(f"Time left after altar put: {time_left}")
+                if time_left <= 0:
                     break
-                time_left -= altar_put_time
-
+                print(f"Altar puts: {altar_puts}")
+                print(f"Altar get phase")   
                 # Altar get phase
-                hearts_generated = batteries // self.altar_config.input_battery
+                hearts_generated = altar_puts // self.altar_config.input_battery
                 altar_get_actions = math.ceil(hearts_generated / self.altar_config.max_output)
-                altar_get_time = altar_get_actions + (altar_get_actions - 1) * self.altar_config.cooldown
-                if time_left < altar_get_time:
-                    completed_gets = (time_left + self.altar_config.cooldown) // (1 + self.altar_config.cooldown)
-                    hearts += min(hearts_generated, completed_gets * self.altar_config.max_output)
-                    batteries -= hearts * self.altar_config.input_battery
+                altar_get_time = 1 + self.altar_config.cooldown
+                if altar_get_actions * altar_get_time > time_left:
+                    hearts += (time_left // altar_get_time) * self.altar_config.max_output
+                    inventory_space -= (time_left // altar_get_time) * self.altar_config.max_output
+                    time_left = 0
+                else:
+                    hearts += hearts_generated
+                    inventory_space -= hearts_generated
+                    time_left -= altar_get_actions * altar_get_time
+                    print(f"Time left after altar get: {time_left}")
+                    print(f"Hearts: {hearts}")
+                    print(f"Inventory space: {inventory_space}")
+                if time_left <= 0:
                     break
-                hearts += hearts_generated
-                batteries = 0
-                inventory_space -= hearts_generated
-                time_left -= altar_get_time
-
+                    
+                print(f"Time left after altar get: {time_left}")
+                
+                
             # Calculate reward for this color
             if self.using_colors:
+                ore_reward_key = getattr(ResourceType, f'ORE_{color.upper()}')
                 color_reward = (
-                    ore * self.rewards[f'ore.{color}'] + 
+                    ore * self.rewards[ore_reward_key] + 
                     batteries * self.rewards[ResourceType.BATTERY] + 
                     hearts * self.rewards[ResourceType.HEART]
                 ) * len(space.agents)
             else:
                 color_reward = (
-                    ore * self.rewards[ResourceType.ORE] +  # Use single ore reward
+                    ore * self.rewards[ResourceType.ORE] + 
                     batteries * self.rewards[ResourceType.BATTERY] + 
                     hearts * self.rewards[ResourceType.HEART]
                 ) * len(space.agents)
             
             # Update maximum reward if this color's reward is higher
-            max_reward = max(max_reward, color_reward)
+            if color_reward > max_reward:
+                max_reward = color_reward
         
         return max_reward
     
@@ -423,16 +460,24 @@ class GridWorld:
             self._estimate_max_reward_max_flow(space)
         )
 
-    def estimate_max_reward(self) -> float:
+    def calculate_max_reward(self) -> float:
         """Calculate the estimated maximum reward across all spaces."""
         return sum(self._calculate_space_reward(space) for space in self.enclosed_spaces)
 
+    def calculate_average_max_reward_per_agent(self) -> float:
+        """Calculate the average maximum reward per agent across all spaces."""
+        total_reward = self.calculate_max_reward()
+        total_agents = sum(len(space.agents) for space in self.enclosed_spaces)
+        return total_reward / total_agents if total_agents > 0 else 0.0
+
     def simulation_summary(self) -> str:
         """Generate a summary of the simulation parameters and results."""
-        estimated_reward = self.estimate_max_reward()
+        estimated_reward = self.calculate_max_reward()
+        # avg_reward_per_agent = self.calculate_average_max_reward_per_agent()
         
         summary = (
             f"The estimated maximum reward is {estimated_reward:.2f}. \n"
+            # f"Average maximum reward per agent: {avg_reward_per_agent:.3f}\n"
             f"Key parameters are:\n"
             f"Number of Enclosed Spaces: {len(self.enclosed_spaces)}\n"
             f"Inventory Limit: {self.inventory_limit}\n"
@@ -480,7 +525,7 @@ class GridWorld:
             space_reward = self._calculate_space_reward(space)
             if len(space.agents) > 0:
                 max_reward_per_agent = space_reward / len(space.agents)
-                summary += f"Maximum Reward per Agent: {max_reward_per_agent:.2f}\n"
+                summary += f"Maximum Reward per Agent: {max_reward_per_agent:.4f}\n"
             else:
                 summary += "Maximum Reward per Agent: N/A (no agents in space)\n"
         
