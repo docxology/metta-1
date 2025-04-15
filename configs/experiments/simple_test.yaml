@@ -1,0 +1,11 @@
+defaults:
+  - override /eval: all
+  - override /agent: simple
+  - override /env: default
+
+run: simple_test
+eval:
+  env: env/default
+  policy_uri: random
+  num_episodes: 5
+  render: true 

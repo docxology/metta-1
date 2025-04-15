@@ -150,3 +150,58 @@ Imagine if this game could be configured to tap into collective higher value as 
 - **Value Sustainability**: Ensuring value systems remain viable across time
 - **Value Transferability**: Creating values that can be shared across dissimilar agents
 - **Meta-Value Principles**: Guidelines for evaluating value systems themselves
+
+# Collective Value in Multi-agent Systems
+
+This document records our exploration of setting up and running multi-agent environments in Metta on PopOS Linux.
+
+## Setup Process
+
+We successfully set up the Metta environment on PopOS Linux with the following steps:
+
+1. Created a PopOS-specific setup script (`explore/pop_os_setup.sh`) that installs necessary system dependencies
+2. Created a dependency installation script (`explore/install_dependencies.sh`) that installs all required Python packages and external repositories
+3. Created a convenient run script (`explore/run_metta.sh`) for running Metta with different configurations
+4. Created utilities for multi-agent experiments (`explore/multiagent_utils.py`) to simplify creation and management of experiments
+
+## Configuration Setup
+
+We created and configured the following:
+
+1. Hardware configuration for PopOS Linux (`configs/hardware/poplinux.yaml`)
+2. Default environment configuration (`configs/env/default.yaml`) 
+3. Test experiment configuration (`configs/experiments/simple_test.yaml`)
+
+## Current Challenges
+
+During our exploration, we encountered the following challenges:
+
+1. The Python command needs to be explicitly set to `python3` on PopOS
+2. Certain dependencies like `optree` needed to be updated to newer versions
+3. There appears to be an issue with the experiment configuration structure:
+   - The error `AttributeError: 'NoneType' object has no attribute 'startswith'` suggests there might be missing configuration values
+   - The `play.py` tool expects `cfg.eval.env` to be properly set
+
+## Next Steps
+
+To continue exploring multi-agent systems in Metta, we should:
+
+1. Examine the structure of working experiment configurations
+2. Create a minimal working example based on existing configurations
+3. Explore creating custom multi-agent environments
+4. Implement and test collective value mechanisms in these environments
+
+## Ideas for Multi-agent Experiments
+
+Some potential multi-agent experiments to explore:
+
+1. **Resource Allocation**: Agents must collectively decide how to allocate limited resources
+2. **Collaborative Navigation**: Agents navigate a shared environment while avoiding collisions
+3. **Specialized Roles**: Agents develop specialized roles to complement each other
+4. **Communication Protocols**: Emergence of communication between agents to coordinate actions
+
+## Resources
+
+- [Metta GitHub Repository](https://github.com/Metta-AI/metta)
+- [Multi-agent Systems Documentation](https://metta.ai/docs/multi-agent-systems)
+- [PopOS Setup Notes](https://github.com/user/metta-popos-notes)
