@@ -1,4 +1,5 @@
 """
+<<<<<<< Updated upstream
 DAF (Data Analysis Framework) Fork
 
 Main package for the DAF fork providing comprehensive Metta integration,
@@ -44,3 +45,85 @@ __all__ = [
     # Version
     "__version__",
 ]
+=======
+DAF (Distributed Agent Framework)
+
+A professional, hands-off fork of Metta AI focused on providing automated,
+configurable multi-agent reinforcement learning simulations.
+
+This package provides:
+- Automated setup and installation
+- Configurable simulation environments
+- Production-ready tooling and validation
+- Comprehensive testing and documentation
+"""
+
+from typing import Any, Dict, Optional
+
+# Lazy imports to avoid circular dependencies
+def _lazy_import(name: str):
+    """Lazy import to avoid circular dependencies."""
+    try:
+        if name == "SimulationRunner":
+            from daf.core.simulation import SimulationRunner
+            return SimulationRunner
+        elif name == "MettaEngine":
+            from daf.core.engine import MettaEngine
+            return MettaEngine
+        elif name == "ConfigurationManager":
+            from daf.config.configuration import ConfigurationManager
+            return ConfigurationManager
+        elif name == "SystemValidator":
+            from daf.core.validation import SystemValidator
+            return SystemValidator
+    except ImportError as e:
+        raise ImportError(f"Failed to import {name}: {e}")
+
+# Create lazy module for public API
+class _LazyModule:
+    def __getattr__(self, name):
+        return _lazy_import(name)
+
+# Create lazy module for public API
+core = _LazyModule()
+
+__version__ = "0.1.0"
+__author__ = "DAF Contributors"
+__description__ = "Distributed Agent Framework - Professional Metta AI fork"
+
+# Main API exports
+__all__ = [
+    "core",
+    "__version__",
+]
+
+
+def get_version() -> str:
+    """Get the current version of DAF."""
+    return __version__
+
+
+def get_info() -> Dict[str, Any]:
+    """Get information about the DAF installation."""
+    return {
+        "version": __version__,
+        "author": __author__,
+        "description": __description__,
+        "package": "daf",
+    }
+
+
+# Initialize logging when the package is imported
+def _initialize_logging() -> None:
+    """Initialize logging configuration."""
+    import logging
+
+    from daf.core.logging import setup_logging
+
+    # Only setup if not already configured
+    if not logging.getLogger("daf").handlers:
+        setup_logging()
+
+
+_initialize_logging()
+>>>>>>> Stashed changes

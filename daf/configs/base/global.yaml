@@ -1,0 +1,45 @@
+system:
+  python_version: "3.11.7"
+  device: "auto"
+  parallel_workers: "auto"
+  max_memory_gb: 16
+  timeout_seconds: 3600
+
+  log_level: "INFO"
+  log_format: "structured"
+  log_output: "both"
+
+  validation_strict: true
+  schema_validation: true
+
+metta:
+  installation_path: null
+  version_requirement: ">=0.1.0"
+
+  default_environment: "mettagrid"
+  num_agents: 24
+  map_size: [50, 50]
+
+  default_timesteps: 1000000
+  default_learning_rate: 0.0003
+  batch_size: 2048
+
+  curriculum_algorithm: "learning_progress"
+  enable_curriculum: true
+
+  evaluation_frequency: 10000
+  evaluation_episodes: 100
+
+  checkpoint_frequency: 1000
+  keep_checkpoints: 5
+
+default_simulation: "arena_basic"
+default_environment: "mettagrid"
+
+enable_validation: true
+enable_monitoring: true
+enable_profiling: false
+
+config_dir: "configs"
+output_dir: "outputs"
+data_dir: "data"

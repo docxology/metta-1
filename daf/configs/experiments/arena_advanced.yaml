@@ -1,0 +1,212 @@
+name: "Arena Advanced Experiment"
+description: "Advanced arena experiment with curriculum learning and comprehensive evaluation"
+version: "1.0"
+
+environment:
+  name: "advanced_arena"
+  type: "mettagrid"
+  parameters:
+    num_agents: 48
+    vision_range: 7
+    max_energy: 150
+    energy_decay: 0.98
+
+  agent_config:
+    vision_range: 7
+    max_energy: 150
+    energy_decay: 0.98
+    shield_strength: 10
+    attack_power: 25
+
+  map_config:
+    width: 100
+    height: 100
+    border: true
+    resource_density: 0.15
+    obstacle_density: 0.05
+
+  world_size: [100, 100]
+
+  resource_config:
+    diamond_value: 15
+    heart_value: 150
+    max_resources: 100
+    resource_types:
+      - name: "diamond"
+        value: 15
+        respawn_time: 100
+      - name: "heart"
+        value: 150
+        respawn_time: 500
+      - name: "laser_upgrade"
+        value: 50
+        respawn_time: 1000
+
+curriculum:
+  algorithm: "learning_progress"
+  enable_buckets: true
+
+  bucket_config:
+    reward_buckets:
+      - parameter: "game.agent.rewards.inventory.diamond"
+        values: [0, 0.1, 0.25, 0.5, 0.75, 1.0]
+      - parameter: "game.agent.rewards.inventory_max.diamond"
+        values: [1, 5, 10, 20, 50]
+      - parameter: "game.agent.rewards.inventory.heart"
+        values: [0, 0.5, 1.0]
+      - parameter: "game.agent.rewards.inventory_max.heart"
+        values: [1, 10, 25, 50]
+
+    complexity_buckets:
+      - parameter: "game.actions.attack.consumed_resources.laser"
+        values: [1, 5, 10, 25, 50, 100]
+      - parameter: "game.actions.shield.consumed_resources.energy"
+        values: [1, 2, 5, 10]
+
+    environment_buckets:
+      - parameter: "game.map_builder.resource_density"
+        values: [0.05, 0.1, 0.15, 0.2]
+      - parameter: "game.map_builder.obstacle_density"
+        values: [0.0, 0.02, 0.05, 0.08]
+
+  learning_progress_config:
+    use_bidirectional: true
+    ema_timescale: 0.001
+    exploration_bonus: 0.1
+    max_memory_tasks: 1000
+    max_slice_axes: 8
+    enable_detailed_slice_logging: false
+
+  task_progression:
+    - name: "resource_collection"
+      difficulty: 1
+      parameters:
+        game.agent.rewards.inventory.diamond: 0.5
+        game.agent.rewards.inventory_max.diamond: 10
+    - name: "combat_training"
+      difficulty: 3
+      parameters:
+        game.actions.attack.consumed_resources.laser: 10
+        game.agent.rewards.inventory.heart: 0.5
+    - name: "cooperation_challenge"
+      difficulty: 5
+      parameters:
+        game.agent.rewards.inventory.heart: 1.0
+        game.agent.rewards.inventory_max.heart: 25
+    - name: "full_competition"
+      difficulty: 8
+      parameters:
+        game.actions.attack.consumed_resources.laser: 1
+        game.map_builder.resource_density: 0.2
+
+  difficulty_ramp:
+    progression_rate: 0.1
+    stability_threshold: 0.8
+    max_difficulty: 10
+
+training:
+  total_timesteps: 5000000
+  learning_rate: 0.0001
+  batch_size: 4096
+  num_workers: 8
+
+  ppo_epochs: 4
+  ppo_clip_range: 0.2
+  value_loss_coef: 0.5
+  entropy_coef: 0.01
+
+  max_grad_norm: 0.5
+  use_mixed_precision: false
+
+  # Advanced training settings
+  gradient_checkpointing: false
+  use_ema: false
+  ema_decay: 0.99
+
+evaluation:
+  frequency: 50000
+  num_episodes: 200
+
+  metrics:
+    - "total_reward"
+    - "episode_length"
+    - "success_rate"
+    - "cooperation_index"
+    - "resource_efficiency"
+    - "combat_effectiveness"
+    - "energy_management"
+    - "spatial_awareness"
+
+  evaluate_checkpoints: true
+  checkpoint_selection: "best"
+
+  save_replays: true
+  save_stats: true
+
+  # Custom evaluation scenarios
+  scenarios:
+    - name: "resource_rich"
+      description: "High resource availability"
+      overrides:
+        game.map_builder.resource_density: 0.3
+        game.agent.rewards.inventory.diamond: 1.0
+    - name: "combat_focused"
+      description: "High combat difficulty"
+      overrides:
+        game.actions.attack.consumed_resources.laser: 1
+        game.agent.rewards.inventory.heart: 1.0
+    - name: "cooperation_required"
+      description: "Requires cooperation to succeed"
+      overrides:
+        game.agent.rewards.inventory.heart: 1.0
+        game.agent.rewards.inventory_max.heart: 50
+        game.map_builder.obstacle_density: 0.1
+
+output_dir: "outputs/arena_advanced"
+save_artifacts: true
+
+artifact_types:
+  - "checkpoints"
+  - "logs"
+  - "metrics"
+  - "replays"
+  - "analysis"
+  - "models"
+
+seed: null
+device: "auto"
+parallel_execution: true
+
+tags:
+  - "arena"
+  - "advanced"
+  - "curriculum"
+  - "multi-agent"
+  - "cooperation"
+  - "research"
+
+created_at: "2024-01-01T00:00:00Z"
+author: "DAF Research Team"
+
+# Experiment metadata
+metadata:
+  experiment_type: "curriculum_learning"
+  domain: "multi_agent_rl"
+  complexity: "high"
+  expected_duration_hours: 48
+  compute_requirements: "GPU recommended"
+
+  # Research notes
+  research_goals:
+    - "Investigate emergence of cooperation in complex environments"
+    - "Study the impact of curriculum learning on agent capabilities"
+    - "Analyze the relationship between resource availability and behavior"
+
+  expected_outcomes:
+    - "Agents should develop cooperative strategies"
+    - "Curriculum should improve learning efficiency"
+    - "Complex behaviors should emerge from simple reward structures"
+
+  references:
+    - "DAF Technical Report: Curriculum Learning in Multi-Agent Systems"
+    - "Metta AI: Emergence of Cooperation in Gridworld Environments"

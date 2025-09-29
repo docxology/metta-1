@@ -1,0 +1,288 @@
+# DAF (Distributed Agent Framework) - Metta AI Fork
+# ===================================================
+
+## Overview
+
+DAF is a professional fork of Metta AI focused on providing hands-off, configurable multi-agent reinforcement learning simulations. This fork emphasizes:
+
+- **Automated Setup**: Zero-touch installation and configuration
+- **Modular Design**: Configurable simulation components
+- **Production Ready**: Enterprise-grade tooling and validation
+- **Research Focus**: Streamlined experimentation workflows
+
+## Development Philosophy
+
+### Core Principles
+
+1. **Hands-Off Automation**: Every component should work without manual intervention
+2. **Configuration Over Code**: Prefer configuration files over hardcoded values
+3. **Modular Architecture**: Design for easy extension and customization
+4. **Validation First**: Comprehensive testing and validation at every level
+5. **Documentation**: Self-documenting code with clear examples
+
+### Code Standards
+
+- **Python 3.11+**: Strict version requirements for reproducibility
+- **Type Safety**: Full type annotations with mypy validation
+- **Async First**: Modern Python async patterns where appropriate
+- **Testing**: 95%+ test coverage with integration tests
+- **Documentation**: Docstrings for all public APIs
+
+## Project Structure
+
+```
+daf/
+├── src/                    # Core DAF implementation
+│   ├── daf/               # Main package
+│   │   ├── config/        # Configuration management
+│   │   ├── core/          # Core simulation engine
+│   │   ├── experiments/   # Experiment definitions
+│   │   ├── tools/         # CLI and utility tools
+│   │   └── validation/    # Validation and testing
+├── configs/               # Configuration files
+│   ├── base/             # Base configurations
+│   ├── experiments/      # Experiment configurations
+│   └── environments/     # Environment configurations
+├── scripts/              # Setup and utility scripts
+│   ├── install.py       # Main installation script
+│   ├── setup.py         # Environment setup
+│   └── validate.py      # System validation
+├── tests/               # Comprehensive test suite
+│   ├── unit/           # Unit tests
+│   ├── integration/    # Integration tests
+│   └── fixtures/       # Test data and fixtures
+├── docs/               # Documentation
+│   ├── api/           # API documentation
+│   ├── guides/        # User guides
+│   └── examples/      # Code examples
+└── tools/             # External tools and utilities
+```
+
+## Configuration System
+
+### Environment Configuration
+
+DAF uses a hierarchical configuration system:
+
+1. **Global Settings**: System-wide defaults in `configs/base/global.yaml`
+2. **Environment Configs**: Per-environment settings in `configs/environments/`
+3. **Experiment Configs**: Experiment-specific overrides in `configs/experiments/`
+4. **Runtime Configs**: Command-line and runtime overrides
+
+### Example Configuration
+
+```yaml
+# configs/environments/arena_basic.yaml
+simulation:
+  name: "arena_basic"
+  environment: "mettagrid"
+  num_agents: 24
+  curriculum:
+    algorithm: "learning_progress"
+    buckets:
+      - parameter: "game.agent.rewards.inventory.diamond"
+        values: [0, 0.1, 0.5, 1.0]
+      - parameter: "game.agent.rewards.inventory_max.diamond"
+        values: [1, 5, 10]
+```
+
+## Setup and Installation
+
+### Automated Setup
+
+DAF provides hands-off installation:
+
+```bash
+# One-command setup
+python scripts/install.py --profile research --non-interactive
+
+# Custom configuration
+python scripts/install.py --config configs/production.yaml
+
+# Development setup
+python scripts/install.py --dev --with-tests
+```
+
+### Validation Commands
+
+```bash
+# System validation
+python scripts/validate.py system
+
+# Configuration validation
+python scripts/validate.py config
+
+# Environment validation
+python scripts/validate.py environment
+```
+
+## Running Simulations
+
+### Basic Usage
+
+```bash
+# Run a single experiment
+daf run experiment configs/experiments/quick_test.yaml
+
+# Run with custom parameters
+daf run experiment configs/experiments/arena_advanced.yaml \
+  --agents 48 --timesteps 1000000
+
+# Batch experiments
+daf run batch configs/experiments/sweep.yaml
+```
+
+### Programmatic Usage
+
+```python
+from daf.core.simulation import SimulationRunner
+from daf.config.experiment import load_experiment_config
+
+# Load and run experiment
+config = load_experiment_config("configs/experiments/arena_basic.yaml")
+runner = SimulationRunner(config)
+results = runner.run()
+
+# Custom simulation
+from daf.core.engine import MettaEngine
+engine = MettaEngine()
+results = engine.simulate(
+    environment="mettagrid",
+    agents=24,
+    curriculum="learning_progress"
+)
+```
+
+## Development Workflow
+
+### Adding New Components
+
+1. **Create Configuration**: Add config files to appropriate directories
+2. **Implement Core Logic**: Add implementation to `src/daf/core/`
+3. **Add Validation**: Create tests in `tests/unit/`
+4. **Integration Testing**: Add integration tests in `tests/integration/`
+5. **Documentation**: Update docs and add examples
+
+### Testing Requirements
+
+- **Unit Tests**: Test individual components in isolation
+- **Integration Tests**: Test component interactions
+- **End-to-End Tests**: Full simulation workflows
+- **Performance Tests**: Benchmark critical paths
+- **Configuration Tests**: Validate all configuration combinations
+
+### Code Review Checklist
+
+- [ ] Type annotations complete and accurate
+- [ ] Unit tests cover all code paths
+- [ ] Integration tests validate component interactions
+- [ ] Documentation is complete and accurate
+- [ ] Configuration files are validated
+- [ ] Performance impact assessed
+- [ ] Security considerations addressed
+
+## Quality Gates
+
+### Automated Checks
+
+- **Pre-commit Hooks**: Format, lint, type check
+- **CI/CD Pipeline**: Full test suite, coverage, security scans
+- **Configuration Validation**: Schema validation for all configs
+- **Performance Regression**: Automated performance testing
+
+### Manual Reviews
+
+- **Architecture Review**: For major structural changes
+- **Security Review**: For components handling sensitive data
+- **Performance Review**: For optimization changes
+- **Documentation Review**: For API and user-facing changes
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Installation Failures**
+   ```bash
+   # Check system requirements
+   python scripts/validate.py system
+
+   # Manual dependency installation
+   python scripts/install.py --fix-dependencies
+   ```
+
+2. **Configuration Errors**
+   ```bash
+   # Validate configuration
+   python scripts/validate.py config configs/my_experiment.yaml
+
+   # Check configuration schema
+   python scripts/validate.py schema
+   ```
+
+3. **Runtime Issues**
+   ```bash
+   # Enable debug logging
+   daf run --debug --verbose
+
+   # Check system resources
+   python scripts/validate.py resources
+   ```
+
+### Debug Mode
+
+Enable detailed logging for troubleshooting:
+
+```bash
+export DAF_DEBUG=1
+export DAF_LOG_LEVEL=DEBUG
+daf run experiment configs/my_experiment.yaml
+```
+
+## Contributing
+
+### Contribution Process
+
+1. **Feature Request**: Create detailed specification
+2. **Implementation Plan**: Design and architecture review
+3. **Implementation**: Follow coding standards
+4. **Testing**: Comprehensive test coverage
+5. **Documentation**: Update relevant documentation
+6. **Review**: Code review and approval
+7. **Integration**: Merge and validate
+
+### Code Standards
+
+- **Import Order**: Standard library, third-party, local imports
+- **Line Length**: 120 characters maximum
+- **Docstrings**: Google style for all public APIs
+- **Error Handling**: Explicit error handling with informative messages
+- **Logging**: Structured logging with appropriate levels
+
+## Security Considerations
+
+- **Data Protection**: No sensitive data in logs or configs
+- **Access Control**: Validate all configuration sources
+- **Dependency Scanning**: Automated vulnerability scanning
+- **Input Validation**: Strict validation of all inputs
+- **Audit Logging**: Comprehensive audit trails for sensitive operations
+
+## Performance Guidelines
+
+- **Memory Usage**: Monitor and optimize memory consumption
+- **CPU Utilization**: Efficient parallel processing
+- **I/O Operations**: Minimize and optimize file operations
+- **Network Calls**: Cache and batch remote operations
+- **GPU Usage**: Efficient GPU memory management
+
+## Future Roadmap
+
+- [ ] Plugin architecture for custom components
+- [ ] Distributed training support
+- [ ] Advanced visualization and analytics
+- [ ] Auto-optimization of simulation parameters
+- [ ] Integration with major ML platforms
+- [ ] Containerized deployment options
+
+---
+
+**Note**: This document serves as the authoritative guide for DAF development. All contributors should familiarize themselves with these guidelines before making changes.

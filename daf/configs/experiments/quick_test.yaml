@@ -1,0 +1,57 @@
+name: "Quick Test Experiment"
+description: "A minimal experiment for testing DAF functionality"
+version: "1.0"
+
+environment:
+  name: "test_environment"
+  type: "mettagrid"
+  num_agents: 8
+  agent_config: {}
+  map_config:
+    width: 20
+    height: 20
+    border: true
+  world_size: [20, 20]
+  resource_config: {}
+
+curriculum:
+  algorithm: "learning_progress"
+  enable_buckets: true
+  bucket_config: {}
+
+training:
+  total_timesteps: 10000
+  learning_rate: 0.001
+  batch_size: 512
+  num_workers: 2
+
+  ppo_epochs: 4
+  ppo_clip_range: 0.2
+  value_loss_coef: 0.5
+  entropy_coef: 0.01
+
+  max_grad_norm: 0.5
+  use_mixed_precision: false
+
+evaluation:
+  frequency: 1000
+  num_episodes: 10
+  metrics: ["reward", "success_rate", "episode_length"]
+
+  evaluate_checkpoints: true
+  checkpoint_selection: "latest"
+
+  save_replays: false
+  save_stats: true
+
+output_dir: "outputs/quick_test"
+save_artifacts: true
+artifact_types: ["checkpoints", "logs", "metrics"]
+
+seed: 42
+device: "cpu"
+parallel_execution: false
+
+tags: ["test", "quick", "minimal"]
+created_at: "2024-01-01T00:00:00Z"
+author: "DAF User"

@@ -2007,6 +2007,7 @@ dependencies = [
     { name = "metta-agent" },
     { name = "metta-app-backend" },
     { name = "metta-common" },
+    { name = "mettagrid" },
     { name = "numpy" },
     { name = "nvidia-ml-py" },
     { name = "omegaconf" },
@@ -2110,7 +2111,12 @@ requires-dist = [
     { name = "metta-agent", editable = "agent" },
     { name = "metta-app-backend", editable = "app_backend" },
     { name = "metta-common", editable = "common" },
+<<<<<<< Updated upstream
     { name = "numpy", specifier = ">=2" },
+=======
+    { name = "mettagrid", editable = "packages/mettagrid" },
+    { name = "numpy", specifier = ">=1.26.4,<2" },
+>>>>>>> Stashed changes
     { name = "nvidia-ml-py" },
     { name = "omegaconf", specifier = ">=2.3.0" },
     { name = "pandas", specifier = ">=2.3.0" },

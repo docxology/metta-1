@@ -1,0 +1,26 @@
+name: "production"
+description: "Production deployment profile optimized for performance"
+base_config: "base/global.yaml"
+
+use_case: "production"
+performance_target: "optimized"
+resource_level: "high"
+
+overrides:
+  system.log_level: "INFO"
+  system.validation_strict: true
+  system.parallel_workers: 8
+  metta.default_timesteps: 5000000
+  metta.evaluation_frequency: 50000
+  metta.checkpoint_frequency: 10000
+  enable_profiling: false
+
+environment_overrides:
+  num_agents: 48
+  map_size: [100, 100]
+  enable_curriculum: true
+
+training_overrides:
+  learning_rate: 0.0001
+  batch_size: 4096
+  total_timesteps: 10000000

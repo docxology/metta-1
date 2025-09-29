@@ -1,0 +1,24 @@
+name: "research"
+description: "Research and development profile with detailed logging and validation"
+base_config: "base/global.yaml"
+
+use_case: "research"
+performance_target: "balanced"
+resource_level: "medium"
+
+overrides:
+  system.log_level: "DEBUG"
+  system.validation_strict: true
+  metta.default_timesteps: 1000000
+  metta.evaluation_frequency: 10000
+  metta.checkpoint_frequency: 1000
+
+environment_overrides:
+  num_agents: 24
+  map_size: [50, 50]
+  enable_curriculum: true
+
+training_overrides:
+  learning_rate: 0.0003
+  batch_size: 2048
+  total_timesteps: 1000000

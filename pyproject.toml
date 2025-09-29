@@ -32,7 +32,12 @@ dependencies = [
   "metta-agent",
   "metta-app-backend",
   "metta-common",
+<<<<<<< Updated upstream
   "numpy>=2",
+=======
+  "mettagrid",
+  "numpy>=1.26.4,<2",
+>>>>>>> Stashed changes
   "nvidia-ml-py",
   "omegaconf>=2.3.0",
   "pandas>=2.3.0",
@@ -167,3 +172,23 @@ metta-app-backend = { workspace = true }
 metta-common = { workspace = true }
 pufferlib-core = { workspace = true }
 softmax = { workspace = true }
+<<<<<<< Updated upstream
+=======
+mettagrid = { workspace = true }
+
+[tool.ruff]
+exclude = ["*.ipynb"]
+
+[tool.ruff.lint.isort]
+known-first-party = [
+  "codebot",
+  "cogames",
+  "gitta",
+  "metta_agent",
+  "metta_app_backend",
+  "metta_common",
+  "metta",
+  "mettagrid",
+  "softmax",
+]
+>>>>>>> Stashed changes

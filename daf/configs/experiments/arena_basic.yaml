@@ -1,0 +1,72 @@
+name: "Arena Basic Experiment"
+description: "Basic arena experiment with 24 agents and curriculum learning"
+version: "1.0"
+
+environment:
+  name: "arena_environment"
+  type: "mettagrid"
+  num_agents: 24
+  agent_config:
+    vision_range: 5
+    max_energy: 100
+    energy_decay: 0.99
+  map_config:
+    width: 50
+    height: 50
+    border: true
+    resource_density: 0.1
+  world_size: [50, 50]
+  resource_config:
+    diamond_value: 10
+    heart_value: 100
+    max_resources: 50
+
+curriculum:
+  algorithm: "learning_progress"
+  enable_buckets: true
+  bucket_config:
+    reward_buckets:
+      - parameter: "game.agent.rewards.inventory.diamond"
+        values: [0, 0.1, 0.5, 1.0]
+      - parameter: "game.agent.rewards.inventory_max.diamond"
+        values: [1, 5, 10, 20]
+    complexity_buckets:
+      - parameter: "game.actions.attack.consumed_resources.laser"
+        values: [1, 10, 50, 100]
+
+training:
+  total_timesteps: 1000000
+  learning_rate: 0.0003
+  batch_size: 2048
+  num_workers: 4
+
+  ppo_epochs: 4
+  ppo_clip_range: 0.2
+  value_loss_coef: 0.5
+  entropy_coef: 0.01
+
+  max_grad_norm: 0.5
+  use_mixed_precision: false
+
+evaluation:
+  frequency: 10000
+  num_episodes: 100
+  metrics: ["reward", "success_rate", "episode_length", "cooperation_index", "resource_efficiency"]
+
+  evaluate_checkpoints: true
+  checkpoint_selection: "latest"
+
+  save_replays: false
+  save_stats: true
+
+output_dir: "outputs/arena_basic"
+save_artifacts: true
+artifact_types: ["checkpoints", "logs", "metrics", "replays"]
+
+seed: null
+device: "auto"
+parallel_execution: true
+
+tags: ["arena", "basic", "curriculum", "multi-agent"]
+created_at: "2024-01-01T00:00:00Z"
+author: "DAF User"
