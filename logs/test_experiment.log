@@ -1,0 +1,63 @@
+2025-04-15 10:16:42,296 - experiments - INFO - Initialized experiment: test_experiment
+2025-04-15 10:16:42,296 - experiments - INFO - Environment: <GridWorld instance>
+2025-04-15 10:16:42,296 - experiments - INFO - Agents: 3
+2025-04-15 10:16:42,296 - experiments - INFO - Setting up experiment...
+2025-04-15 10:16:42,296 - experiments - INFO - Initializing agent 0: navigator
+2025-04-15 10:16:42,296 - experiments - INFO - Initializing agent 1: manipulator
+2025-04-15 10:16:42,296 - experiments - INFO - Initializing agent 2: observer
+2025-04-15 10:16:42,296 - experiments - INFO - Experiment setup complete
+2025-04-15 10:16:42,296 - experiments - INFO - Resetting experiment...
+2025-04-15 10:19:24,031 - experiments - INFO - Initialized experiment: test_experiment
+2025-04-15 10:19:24,031 - experiments - INFO - Environment: <GridWorld instance>
+2025-04-15 10:19:24,031 - experiments - INFO - Agents: 3
+2025-04-15 10:19:24,032 - experiments - INFO - Setting up experiment...
+2025-04-15 10:19:24,032 - experiments - INFO - Initializing agent 0: navigator
+2025-04-15 10:19:24,032 - experiments - INFO - Initializing agent 1: manipulator
+2025-04-15 10:19:24,032 - experiments - INFO - Initializing agent 2: observer
+2025-04-15 10:19:24,032 - experiments - INFO - Experiment setup complete
+2025-04-15 10:19:24,032 - experiments - INFO - Resetting experiment...
+2025-04-15 10:19:24,209 - experiments - INFO - Executing step 1
+2025-04-15 10:19:24,209 - experiments - INFO - Step 1 complete
+2025-04-15 10:19:24,210 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:24,803 - experiments - INFO - Executing step 2
+2025-04-15 10:19:24,804 - experiments - INFO - Step 2 complete
+2025-04-15 10:19:24,805 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:25,449 - experiments - INFO - Executing step 3
+2025-04-15 10:19:25,450 - experiments - INFO - Step 3 complete
+2025-04-15 10:19:25,450 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:26,063 - experiments - INFO - Executing step 4
+2025-04-15 10:19:26,064 - experiments - INFO - Step 4 complete
+2025-04-15 10:19:26,064 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:26,726 - experiments - INFO - Executing step 5
+2025-04-15 10:19:26,727 - experiments - INFO - Step 5 complete
+2025-04-15 10:19:26,727 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:27,379 - experiments - INFO - Executing step 6
+2025-04-15 10:19:27,379 - experiments - INFO - Step 6 complete
+2025-04-15 10:19:27,379 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:28,001 - experiments - INFO - Executing step 7
+2025-04-15 10:19:28,001 - experiments - INFO - Step 7 complete
+2025-04-15 10:19:28,002 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:28,725 - experiments - INFO - Executing step 8
+2025-04-15 10:19:28,725 - experiments - INFO - Step 8 complete
+2025-04-15 10:19:28,726 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:29,380 - experiments - INFO - Executing step 9
+2025-04-15 10:19:29,380 - experiments - INFO - Step 9 complete
+2025-04-15 10:19:29,381 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:30,029 - experiments - INFO - Executing step 10
+2025-04-15 10:19:30,030 - experiments - INFO - Step 10 complete
+2025-04-15 10:19:30,030 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:30,686 - experiments - INFO - Executing step 11
+2025-04-15 10:19:30,686 - experiments - INFO - Step 11 complete
+2025-04-15 10:19:30,687 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:31,316 - experiments - INFO - Executing step 12
+2025-04-15 10:19:31,317 - experiments - INFO - Step 12 complete
+2025-04-15 10:19:31,317 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:31,968 - experiments - INFO - Executing step 13
+2025-04-15 10:19:31,968 - experiments - INFO - Step 13 complete
+2025-04-15 10:19:31,969 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:32,643 - experiments - INFO - Executing step 14
+2025-04-15 10:19:32,644 - experiments - INFO - Step 14 complete
+2025-04-15 10:19:32,645 - experiments - INFO -   Rewards: [0. 0. 0.]
+2025-04-15 10:19:33,289 - experiments - INFO - Executing step 15
+2025-04-15 10:19:33,290 - experiments - INFO - Step 15 complete
+2025-04-15 10:19:33,291 - experiments - INFO -   Rewards: [0. 0. 0.]

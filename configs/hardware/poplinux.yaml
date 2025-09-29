@@ -1,0 +1,20 @@
+# PopOS Linux hardware configuration
+_target_: null
+
+# CPU settings
+cpu:
+  cores: "all"  # Use all available CPU cores
+
+# GPU settings - modify based on your actual hardware
+gpu:
+  use: true
+  device: 0     # First GPU device
+
+# Memory settings
+memory:
+  fraction: 0.8  # Use 80% of available memory
+
+# Display settings
+display:
+  width: 1280
+  height: 720 

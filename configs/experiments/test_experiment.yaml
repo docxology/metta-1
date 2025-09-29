@@ -1,0 +1,24 @@
+_target_: experiments.MultiAgentExperiment
+agents:
+- id: agent_0
+  policy:
+    _target_: policies.navigator.Policy
+    action_space: ${env.action_space}
+    observation_space: ${env.observation_space}
+  type: navigator
+- id: agent_1
+  policy:
+    _target_: policies.manipulator.Policy
+    action_space: ${env.action_space}
+    observation_space: ${env.observation_space}
+  type: manipulator
+- id: agent_2
+  policy:
+    _target_: policies.observer.Policy
+    action_space: ${env.action_space}
+    observation_space: ${env.observation_space}
+  type: observer
+env:
+  _target_: environments.gridworld
+  num_agents: 3
+name: test_experiment
