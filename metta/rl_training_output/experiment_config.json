@@ -1,0 +1,13 @@
+{
+  "experiment_name": "metta_rl_training_demo",
+  "system_config": {
+    "vectorization": "serial",
+    "seed": 330242,
+    "torch_deterministic": true,
+    "device": "mps",
+    "data_dir": "train_dir",
+    "remote_prefix": null,
+    "local_only": false,
+    "nccl_timeout": "0:10:00"
+  }
+}

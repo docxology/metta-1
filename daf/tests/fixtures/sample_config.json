@@ -1,0 +1,23 @@
+{
+  "daf_config": {
+    "log_level": "INFO",
+    "log_file": "daf.log",
+    "enable_docs": true,
+    "enable_tests": true,
+    "adaptive_enabled": true,
+    "rl_enabled": true,
+    "curriculum_enabled": true
+  },
+  "metta_config": {
+    "adaptive_controller": {
+      "learning_rate": 0.001,
+      "batch_size": 32
+    },
+    "rl_trainer": {
+      "epochs": 100,
+      "eval_frequency": 10
+    }
+  }
+}
+
+

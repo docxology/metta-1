@@ -1,0 +1,1 @@
+"""DAF test suite initialiser."""
